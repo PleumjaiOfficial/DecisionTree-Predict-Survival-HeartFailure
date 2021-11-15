@@ -1,0 +1,37 @@
+Data model Project : Predict survival of patients with heart failure
+
+1.import package
+
+```{r}
+library(tidyverse)
+library(caret)
+library(lift)
+library(rpart)
+library(rpart.plot)
+library(ROCR)
+```
+
+```{r}
+dataset <- read.csv("heart_failure_dataset.csv",sep = ",")
+str(dataset)
+any(is.na(dataset))
+```
+
+Time can not use to predict
+
+```{r}
+dataset <- select(dataset,c(-time))
+
+```
+
+```{r}
+dataset
+```
+
+```{r}
+dataset$DEATH_EVENT <- as.factor(dataset$DEATH_EVENT)
+```
+
+```{r}
+dataset
+```
