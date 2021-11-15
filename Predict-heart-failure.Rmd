@@ -6,15 +6,16 @@ Data model Project : Predict survival of patients with heart failure
 library(tidyverse)
 library(caret)
 library(lift)
+library(ROCR)
 library(rpart)
 library(rpart.plot)
-library(ROCR)
+library(readr)
+set.seed(69)
 ```
 
 ```{r}
-dataset <- read.csv("heart_failure_dataset.csv",sep = ",")
-str(dataset)
-any(is.na(dataset))
+heart_failure_clinical_records_dataset <- read_csv("heart_failure_dataset.csv")
+heart_failure_clinical_records_dataset
 ```
 
 Time can not use to predict
@@ -29,9 +30,37 @@ dataset
 ```
 
 ```{r}
-dataset$DEATH_EVENT <- as.factor(dataset$DEATH_EVENT)
+any(is.na(heart_failure_clinical_records_dataset))
 ```
 
 ```{r}
-dataset
+heart_failure_clinical_records_dataset %>% rename(
+    cpk = creatinine_phosphokinase,
+    death = DEATH_EVENT
+  ) %>% 
+  select(-time) -> all_data
+```
+
+```{r}
+all_data$death = as.factor(all_data$death)
+```
+
+```{r}
+#Check Data Type 
+unique(all_data$age)        #Continuous
+unique(all_data$anaemia)    #Categorical
+unique(all_data$cpk)        #Continuous
+unique(all_data$diabetes)   #Categorical
+unique(all_data$ejection_fraction)   #Continuous
+unique(all_data$high_blood_pressure) #Categorical
+unique(all_data$platelets)           #Continuous 
+unique(all_data$serum_creatinine)    #Continuous 
+unique(all_data$serum_sodium)        #Continuous
+unique(all_data$sex)     #Categorical
+unique(all_data$smoking) #Categorical 
+unique(all_data$death)   #Response y is Categorical
+```
+
+```{r}
+all_data
 ```
