@@ -1,6 +1,8 @@
-## **Data model Project** 
+## **Data model Project**
 
 ## **Predict survival of patients with heart failure**
+
+Ref:<https://bmcmedinformdecismak.biomedcentral.com/articles/10.1186/s12911-020-1023-5>
 
 Cardiovascular diseases (CVDs) are disorders of the heart and blood vessels including, heart attacks, strokes, heart failure
 
@@ -43,7 +45,7 @@ This dataset containing the medical records of 299 heart failure patients collec
 
 #### **Death event :**If the patient died during the follow-up period (Yes = 1, No = 0)
 
------------------------------------------------------------------------------
+------------------------------------------------------------------------
 
 #### import package
 
@@ -71,8 +73,7 @@ heart_failure_clinical_records_dataset
 any(is.na(heart_failure_clinical_records_dataset))
 ```
 
-2.Rename column "creatinine_phosphokinase" to "cpk" and "DEATH_EVENT" to "death" and [reject time((Follow-up period (Days)) isn't used to create a model because it is an unpredictable future story.]{.ul}
-.
+2.Rename column "creatinine_phosphokinase" to "cpk" and "DEATH_EVENT" to "death" and [reject time((Follow-up period (Days)) isn't used to create a model because it is an unpredictable future story.]{.ul} .
 
 ```{r}
 heart_failure_clinical_records_dataset %>% rename(
@@ -114,21 +115,14 @@ unique(all_data$smoking) #Categorical
 unique(all_data$death)   #Response y is Categorical
 ```
 
-+---------------------+--------------------------+
-| ### Categorical     | ### Numerical            |
-+:===================:+:========================:+
-| Anaemia             | Age                      |
-+---------------------+--------------------------+
+|     Categorical     |        Numerical         |
+|:-------------------:|:------------------------:|
+|       Anaemia       |           Age            |
 | High blood pressure | Creatinine phosphokinase |
-+---------------------+--------------------------+
-| diabetes            | Ejection fraction        |
-+---------------------+--------------------------+
-| sex                 | platelets                |
-+---------------------+--------------------------+
-| smoking             | Serum creatinine         |
-+---------------------+--------------------------+
-|                     | Serum sodium             |
-+---------------------+--------------------------+
+|      diabetes       |    Ejection fraction     |
+|         sex         |        platelets         |
+|       smoking       |     Serum creatinine     |
+|                     |       Serum sodium       |
 
 : Type of data
 
@@ -139,5 +133,169 @@ summary(all_data$death)
 A total of **299** patients were surveyed: **203** Alive and **96** Died
 
 ```{r}
+ggplot(all_data, aes(age)) + 
+  geom_histogram(binwidth = 5,colour = "black", fill="salmon2")
+```
 
+## Model explanation
+
+#### 1.Decision tree Hold out method 70% train 30%
+
+#### Train
+
+```{r}
+#Separate train and test data
+n <- nrow(all_data)
+test_index <- sample(1:n,size =  0.3*n) 
+data_train <- all_data[-test_index,] #train 0.7
+data_test <- all_data[test_index,]   #test 0.3
+```
+
+```{r}
+#Summary train and test dataset
+summary(data_test$death)
+summary(data_train$death)
+```
+
+```{r}
+#Train model
+model1 <- rpart(death~., data = data_train)
+```
+
+```{r}
+rpart.plot(model1)
+```
+
+```{r}
+model1$variable.importance
+```
+
+```{r}
+summary(model1)$cptable
+```
+
+## **Test**
+
+```{r}
+#Test Model
+res1 <- predict(model1, data_test, type = 'class') 
+#class type return factor ('0', '1')
+```
+
+```{r}
+head(res1)
+confusionMatrix(res1, data_test$death, positive = "1")
+confusionMatrix(res1, data_test$death, positive = "1", mode = 'prec_recall')
+```
+
+#### Evaluation : Lift Calculation of Model1
+
+```{r}
+#Lift Calculation of Model1
+res1_pos <- predict(model1, data_test)[,'1']
+lift_result1 <- data.frame(prob = res1_pos, y = data_test$death)
+lift_obj1 <- lift(y ~ prob, data = lift_result1, class = '1')
+plot(lift_obj1) #add parameter values (determine %sample found) to find %sample tested
+```
+
+```{r}
+pred1 <- prediction(res1_pos, data_test$death, label.ordering = c('0', '1'))
+perf_lift1 <- performance(pred1, 'lift', 'rpp')
+plot(perf_lift1)
+
+tdl1 <- TopDecileLift(res1_pos, as.integer(data_test$death)-1) 
+tdl1
+```
+
+#### 
+
+#### 2.Cross Validation (CV)
+
+```{r}
+#Cross Validation
+train_control <- trainControl(method = 'cv', number = 10)
+model_cv <- train(death~. ,
+                  data = data_train, 
+                  trControl = train_control, 
+                  method = 'rpart')
+model_cv
+model_cv$finalModel #get new model
+```
+
+```{r}
+model_final <- model_cv$finalModel
+rpart.plot(model_final)
+model_final$variable.importance
+```
+
+```{r}
+#Test Model from CV
+res2 <- predict(model_final, data_test, type = 'class')
+head(res2)
+confusionMatrix(res2, data_test$death, positive = "1")
+confusionMatrix(res2, data_test$death, positive = "1", mode = 'prec_recall')
+```
+
+```{r}
+#Lift Calculation of Model from CV
+res2_pos <- predict(model_final, data_test)[,'1']
+lift_result2 <- data.frame(prob = res2_pos, y = data_test$death)
+lift_obj2 <- lift(y ~ prob, data = lift_result2, class = '1')
+plot(lift_obj2, values = 60) #add parameter values (determine %sample found) to find %sample tested
+```
+
+```{r}
+pred2 <- prediction(res2_pos, data_test$death, label.ordering = c('0', '1'))
+perf_lift2 <- performance(pred2, 'lift', 'rpp')
+plot(perf_lift2) 
+
+tdl2 <- TopDecileLift(res2_pos, as.integer(data_test$death)-1) 
+tdl2
+```
+
+#### 3.Cross Validation (LOOCV)
+
+```{r}
+#Cross Validation LOOCV
+train_control_one <- trainControl(method = 'LOOCV', number = 10)
+model_cv_one <- train(death~. ,
+                  data = all_data, 
+                  trControl = train_control_one, 
+                  method = 'rpart')
+```
+
+```{r}
+model_cv_one
+model_cv_one$finalModel #get new model
+```
+
+```{r}
+model_final_one <- model_cv_one$finalModel
+rpart.plot(model_final_one)
+model_final_one$variable.importance
+```
+
+```{r}
+#Test Model from LOOCV
+res2_one <- predict(model_final_one, data_test, type = 'class')
+head(res2_one)
+confusionMatrix(res2_one, data_test$death, positive = "1")
+confusionMatrix(res2_one, data_test$death, positive = "1", mode = 'prec_recall')
+```
+
+```{r}
+#Lift Calculation of Model from CV
+res3_pos <- predict(model_final_one, data_test)[,'1']
+lift_result3 <- data.frame(prob = res3_pos, y = data_test$death)
+lift_ob32 <- lift(y ~ prob, data = lift_result3, class = '1')
+plot(lift_obj2, values = 60) #add parameter values (determine %sample found) to find %sample tested
+```
+
+```{r}
+pred3 <- prediction(res3_pos, data_test$death, label.ordering = c('0', '1'))
+perf_lift3 <- performance(pred3, 'lift', 'rpp')
+plot(perf_lift3) 
+
+tdl3 <- TopDecileLift(res3_pos, as.integer(data_test$death)-1) 
+tdl3
 ```
