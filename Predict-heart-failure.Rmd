@@ -1,6 +1,51 @@
-Data model Project : Predict survival of patients with heart failure
+## **Data model Project** 
 
-1.import package
+## **Predict survival of patients with heart failure**
+
+Cardiovascular diseases (CVDs) are disorders of the heart and blood vessels including, heart attacks, strokes, heart failure
+
+Cardiovascular diseases cause the death of approximately 17 million people worldwide annually. In particular, heart failure occurs when the heart is unable to pump enough blood to the body, and it is usually caused by diabetes, high blood pressure, or other heart conditions or diseases.
+
+Objective: FIND PEOPLE WITH A HIGH PROBABILITY OF DEATH TO PROVIDE IMMEDIATE ASSISTANCE.
+
+Dataset: <https://www.kaggle.com/andrewmvd/heart-failure-clinical-data>
+
+\
+![](https://lh4.googleusercontent.com/pPPqtuGWYROd18n8JytqgmuhW7OKL5rjjzETq0UFWtb0PnJPWrLJo3Dlu1RONYGgj0d7Js5N7FRvGFuvF-qxQn0nwysZy6exadAzTySO-uHU5KTkPnCllewDqAcMfrqWoqhhB1R-Knk)
+
+![](https://lh3.googleusercontent.com/W0kQrVvjZV8e6cjZUKhvri20WbesjP8Pl3NTSFWBzrCKumve-heVowuAPau46EEx-Fijp47kvk7DBPB2663bfTTpEu4VJ7qdxsTVzSTTcYCQTWVUa5xJKQgJ5MJzG0j_dwpcqbbnffw)
+
+This dataset containing the medical records of 299 heart failure patients collected at the Faisalabad Institute of Cardiology and at the Allied Hospital in Faisalabad (Punjab, Pakistan), during April--December 2015
+
+1.  **Age :** Age of the patient (Year)
+
+2.  **Anaemia :** Decrease of red blood cells or hemoglobin (Yes = 1, No = 0)
+
+3.  **High blood pressure :** If a patient has hypertension (Yes = 1, No = 0)
+
+4.  **Creatinine phosphokinase :** Level of the CPK enzyme in the blood (mcg/L)
+
+5.  **Diabetes :** If the patient has diabetes (Yes = 1, No = 0)
+
+6.  **Ejection fraction :** Percentage of blood leaving the heart at each contraction (Percentage)
+
+7.  **Sex :** Woman or man (Man = 1, Woman=0)
+
+8.  **Platelets :** Platelets in the blood (kilo platelets/mL)
+
+9.  **Serum creatinine :** Level of creatinine in the blood (mg/dL)
+
+10. **Serum sodium :** Level of sodium in the blood (mEq/L)
+
+11. **Smoking :** If the patient smokes (Yes = 1, No = 0)
+
+12. **Time :** Follow-up period (Days)
+
+#### **Death event :**If the patient died during the follow-up period (Yes = 1, No = 0)
+
+-----------------------------------------------------------------------------
+
+#### import package
 
 ```{r}
 library(tidyverse)
@@ -18,20 +63,16 @@ heart_failure_clinical_records_dataset <- read_csv("heart_failure_dataset.csv")
 heart_failure_clinical_records_dataset
 ```
 
-Time can not use to predict
+## Data Preparation
 
-```{r}
-dataset <- select(dataset,c(-time))
-
-```
-
-```{r}
-dataset
-```
+1.Clean up data by removing Na data.
 
 ```{r}
 any(is.na(heart_failure_clinical_records_dataset))
 ```
+
+2.Rename column "creatinine_phosphokinase" to "cpk" and "DEATH_EVENT" to "death" and [reject time((Follow-up period (Days)) isn't used to create a model because it is an unpredictable future story.]{.ul}
+.
 
 ```{r}
 heart_failure_clinical_records_dataset %>% rename(
@@ -39,14 +80,26 @@ heart_failure_clinical_records_dataset %>% rename(
     death = DEATH_EVENT
   ) %>% 
   select(-time) -> all_data
+
 ```
+
+3.Change datatype of "death" to factor
 
 ```{r}
 all_data$death = as.factor(all_data$death)
 ```
 
+Now. dataset is ready
+
 ```{r}
-#Check Data Type 
+all_data
+```
+
+## Data Exploration
+
+data type
+
+```{r}
 unique(all_data$age)        #Continuous
 unique(all_data$anaemia)    #Categorical
 unique(all_data$cpk)        #Continuous
@@ -61,6 +114,30 @@ unique(all_data$smoking) #Categorical
 unique(all_data$death)   #Response y is Categorical
 ```
 
++---------------------+--------------------------+
+| ### Categorical     | ### Numerical            |
++:===================:+:========================:+
+| Anaemia             | Age                      |
++---------------------+--------------------------+
+| High blood pressure | Creatinine phosphokinase |
++---------------------+--------------------------+
+| diabetes            | Ejection fraction        |
++---------------------+--------------------------+
+| sex                 | platelets                |
++---------------------+--------------------------+
+| smoking             | Serum creatinine         |
++---------------------+--------------------------+
+|                     | Serum sodium             |
++---------------------+--------------------------+
+
+: Type of data
+
 ```{r}
-all_data
+summary(all_data$death)
+```
+
+A total of **299** patients were surveyed: **203** Alive and **96** Died
+
+```{r}
+
 ```
