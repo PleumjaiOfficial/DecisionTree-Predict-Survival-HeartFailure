@@ -1,16 +1,24 @@
-## **Data model Project**
-
-## **Predict survival of patients with heart failure**
+# **CPE213 KMUTT Data model Project Predict survival of patients with heart failure**
 
 Ref:<https://bmcmedinformdecismak.biomedcentral.com/articles/10.1186/s12911-020-1023-5>
+
+## Abstract
+
+------------------------------------------------------------------------
+
+### **Cardiovascular diseases**
 
 Cardiovascular diseases (CVDs) are disorders of the heart and blood vessels including, heart attacks, strokes, heart failure
 
 Cardiovascular diseases cause the death of approximately 17 million people worldwide annually. In particular, heart failure occurs when the heart is unable to pump enough blood to the body, and it is usually caused by diabetes, high blood pressure, or other heart conditions or diseases.
 
-Objective: FIND PEOPLE WITH A HIGH PROBABILITY OF DEATH TO PROVIDE IMMEDIATE ASSISTANCE.
+### Objective
 
-Dataset: <https://www.kaggle.com/andrewmvd/heart-failure-clinical-data>
+find the people with a high probability of death to provide immediate assistance.
+
+### **Dataset**
+
+<https://www.kaggle.com/andrewmvd/heart-failure-clinical-data>
 
 \
 ![](https://lh4.googleusercontent.com/pPPqtuGWYROd18n8JytqgmuhW7OKL5rjjzETq0UFWtb0PnJPWrLJo3Dlu1RONYGgj0d7Js5N7FRvGFuvF-qxQn0nwysZy6exadAzTySO-uHU5KTkPnCllewDqAcMfrqWoqhhB1R-Knk)
@@ -19,35 +27,61 @@ Dataset: <https://www.kaggle.com/andrewmvd/heart-failure-clinical-data>
 
 This dataset containing the medical records of 299 heart failure patients collected at the Faisalabad Institute of Cardiology and at the Allied Hospital in Faisalabad (Punjab, Pakistan), during April--December 2015
 
-1.  **Age :** Age of the patient (Year)
+-   **Age :** Age of the patient (Year)
 
-2.  **Anaemia :** Decrease of red blood cells or hemoglobin (Yes = 1, No = 0)
+-   **Anaemia :** Decrease of red blood cells or hemoglobin (Yes = 1, No = 0)
 
-3.  **High blood pressure :** If a patient has hypertension (Yes = 1, No = 0)
+-   **High blood pressure :** If a patient has hypertension (Yes = 1, No = 0)
 
-4.  **Creatinine phosphokinase :** Level of the CPK enzyme in the blood (mcg/L)
+-   **Creatinine phosphokinase :** Level of the CPK enzyme in the blood (mcg/L)
 
-5.  **Diabetes :** If the patient has diabetes (Yes = 1, No = 0)
+-   **Diabetes :** If the patient has diabetes (Yes = 1, No = 0)
 
-6.  **Ejection fraction :** Percentage of blood leaving the heart at each contraction (Percentage)
+-   **Ejection fraction :** Percentage of blood leaving the heart at each contraction (Percentage)
 
-7.  **Sex :** Woman or man (Man = 1, Woman=0)
+-   **Sex :** Woman or man (Man = 1, Woman=0)
 
-8.  **Platelets :** Platelets in the blood (kilo platelets/mL)
+-   **Platelets :** Platelets in the blood (kilo platelets/mL)
 
-9.  **Serum creatinine :** Level of creatinine in the blood (mg/dL)
+-   **Serum creatinine :** Level of creatinine in the blood (mg/dL)
 
-10. **Serum sodium :** Level of sodium in the blood (mEq/L)
+-   **Serum sodium :** Level of sodium in the blood (mEq/L)
 
-11. **Smoking :** If the patient smokes (Yes = 1, No = 0)
+-   **Smoking :** If the patient smokes (Yes = 1, No = 0)
 
-12. **Time :** Follow-up period (Days)
+-   **Time :** Follow-up period (Days)
 
 #### **Death event :**If the patient died during the follow-up period (Yes = 1, No = 0)
 
+## Table of content
+
 ------------------------------------------------------------------------
 
-#### import package
+-   1.Importing libraries and loading data
+
+-   2.Data Cleaning
+
+-   3.Data visualization
+
+-   4.Model Explanation
+
+    -   4.1 Decision tree Hold out method 70% train 30%
+
+    -   4.1.1 lift calculator of Decision tree Hold out method 70% train 30%
+
+    -   4.2 Cross validation
+
+    -   4.2.1 lift calculator of Cross validation
+
+    -   4.3 Cross Validation (LOOCV)
+
+    -   4.3.1 lift calculator of Cross Validation (LOOCV)
+
+-   5.Conclusion
+
+------------------------------------------------------------------------
+
+## Import package
 
 ```{r}
 library(tidyverse)
@@ -65,7 +99,9 @@ heart_failure_clinical_records_dataset <- read_csv("heart_failure_dataset.csv")
 heart_failure_clinical_records_dataset
 ```
 
-## Data Preparation
+------------------------------------------------------------------------
+
+## Data Cleaning
 
 1.Clean up data by removing Na data.
 
@@ -90,15 +126,17 @@ heart_failure_clinical_records_dataset %>% rename(
 all_data$death = as.factor(all_data$death)
 ```
 
-Now. dataset is ready
+4.data after cleaning
 
 ```{r}
 all_data
 ```
 
+------------------------------------------------------------------------
+
 ## Data Exploration
 
-data type
+1.Data type
 
 ```{r}
 unique(all_data$age)        #Continuous
@@ -124,7 +162,7 @@ unique(all_data$death)   #Response y is Categorical
 |       smoking       |     Serum creatinine     |
 |                     |       Serum sodium       |
 
-: Type of data
+2.Ratio of categorical
 
 ```{r}
 summary(all_data$death)
@@ -133,15 +171,64 @@ summary(all_data$death)
 A total of **299** patients were surveyed: **203** Alive and **96** Died
 
 ```{r}
-ggplot(all_data, aes(age)) + 
-  geom_histogram(binwidth = 5,colour = "black", fill="salmon2")
+summary(as.factor(all_data$sex))
 ```
+
+A total of **299** patients: 105 women and 194 man
+
+```{r}
+summary(as.factor(all_data$smoking))
+```
+
+A total of **299** patients: 96 smoking and 203 non-smoking
+
+```{r}
+summary(as.factor(all_data$diabetes))
+```
+
+A total of **299** patients: 125 patients have diabetes and 174 patients don't have diabetes
+
+```{r}
+summary(as.factor(all_data$high_blood_pressure))
+```
+
+A total of **299** patients: 194 patients high blood pressure case and 105 patients non-high blood pressure case
+
+------------------------------------------------------------------------
+
+## Data visualization
+
+1.Distribution of age
+
+```{r}
+ggplot(all_data, aes(age)) + 
+  geom_histogram(binwidth = 5,colour = "black", fill="salmon2") +
+  labs(title = "Age distribution")+
+  theme_minimal()
+  
+```
+
+```{r}
+summary(all_data$age)
+```
+
+from histogram and summary statistic . age of patients are right skewed and their ages range between 40 and 95 years old
+
+2.  Scatterplot of serum creatinine versus ejection fraction
+
+```{r}
+ggplot(all_data) + 
+  geom_point(aes(x = cpk, y = ejection_fraction, color = death,shape=death))+
+  labs(title = "Scatterplot of serum creatinine")+
+  theme_minimal()
+  
+```
+
+------------------------------------------------------------------------
 
 ## Model explanation
 
-#### 1.Decision tree Hold out method 70% train 30%
-
-#### Train
+### 1.Decision tree Hold out method 70% train 30%
 
 ```{r}
 #Separate train and test data
@@ -156,6 +243,8 @@ data_test <- all_data[test_index,]   #test 0.3
 summary(data_test$death)
 summary(data_train$death)
 ```
+
+#### Train model
 
 ```{r}
 #Train model
@@ -174,7 +263,7 @@ model1$variable.importance
 summary(model1)$cptable
 ```
 
-## **Test**
+#### **Test model**
 
 ```{r}
 #Test Model
@@ -188,7 +277,9 @@ confusionMatrix(res1, data_test$death, positive = "1")
 confusionMatrix(res1, data_test$death, positive = "1", mode = 'prec_recall')
 ```
 
-#### Evaluation : Lift Calculation of Model1
+conclusion of model tree
+
+#### Evaluation : Lift Calculation of Model (Decision tree Hold out method 70% train 30%)
 
 ```{r}
 #Lift Calculation of Model1
@@ -209,7 +300,9 @@ tdl1
 
 #### 
 
-#### 2.Cross Validation (CV)
+### 2.Cross Validation (CV)
+
+![](https://www.researchgate.net/profile/Johar-Ashfaque/publication/332370436/figure/fig1/AS:746775958806528@1555056671117/Diagram-of-k-fold-cross-validation-with-k-10-Image-from-Karl-Rosaen-Log.ppm){width="458"}
 
 ```{r}
 #Cross Validation
