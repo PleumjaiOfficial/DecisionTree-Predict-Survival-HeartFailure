@@ -63,21 +63,23 @@ This dataset containing the medical records of 299 heart failure patients collec
 
 -   3.Data visualization
 
--   4.Model Explanation
+-   4.Model Explanation and Model Evaluation
 
-    -   4.1 Decision tree Hold out method 70% train 30%
+    -   Decision tree Hold out method 70% train 30%
 
-    -   4.1.1 lift calculator of Decision tree Hold out method 70% train 30%
+-   5\. Model Evaluation
 
-    -   4.2 Cross validation
+    -   Lift calculator of Decision tree Hold out method 70% train 30%
 
-    -   4.2.1 lift calculator of Cross validation
+    -   Cross validation
 
-    -   4.3 Cross Validation (LOOCV)
+    -   Lift calculator of Cross validation
 
-    -   4.3.1 lift calculator of Cross Validation (LOOCV)
+    -   Cross Validation (LOOCV)
 
--   5.Conclusion
+    -   Lift calculator of Cross Validation (LOOCV)
+
+-   6.Conclusion
 
 ------------------------------------------------------------------------
 
@@ -226,7 +228,7 @@ ggplot(all_data) +
 
 ------------------------------------------------------------------------
 
-## Model explanation
+## Model Explanation
 
 ### 1.Decision tree Hold out method 70% train 30%
 
@@ -277,9 +279,19 @@ confusionMatrix(res1, data_test$death, positive = "1")
 confusionMatrix(res1, data_test$death, positive = "1", mode = 'prec_recall')
 ```
 
-conclusion of model tree
+------------------------------------------------------------------------
 
-#### Evaluation : Lift Calculation of Model (Decision tree Hold out method 70% train 30%)
+## Model Evaluation
+
+***Lift Calculation***
+
+$Lift = P(Yes | Model)/P(Yes)$
+
+After we got model. we should to test model performance. in this project we use classification model so Lift is tool for test performance of classification model.
+
+"Lift use for compare normal random and random with model, what is the better choice. "
+
+### 1.Lift Calculation of Model (Decision tree Hold out method 70% train 30%)
 
 ```{r}
 #Lift Calculation of Model1
@@ -298,9 +310,9 @@ tdl1 <- TopDecileLift(res1_pos, as.integer(data_test$death)-1)
 tdl1
 ```
 
-#### 
-
 ### 2.Cross Validation (CV)
+
+After we test with lift calculation. the problem when we split the train and test model that effective model overfit. Now we should to split with K-Fold Cross Validation for split data to 10 round to split and test data for select the best split
 
 ![](https://www.researchgate.net/profile/Johar-Ashfaque/publication/332370436/figure/fig1/AS:746775958806528@1555056671117/Diagram-of-k-fold-cross-validation-with-k-10-Image-from-Karl-Rosaen-Log.ppm){width="458"}
 
@@ -348,6 +360,8 @@ tdl2
 
 #### 3.Cross Validation (LOOCV)
 
+LOOCV same technicial like K-FLOD. the different is number of split is the record of data and split with one set for test and other for train to build model
+
 ```{r}
 #Cross Validation LOOCV
 train_control_one <- trainControl(method = 'LOOCV', number = 10)
@@ -392,3 +406,31 @@ plot(perf_lift3)
 tdl3 <- TopDecileLift(res3_pos, as.integer(data_test$death)-1) 
 tdl3
 ```
+
+## **Conclusion**
+
+The amount of information is sparse. In real situation the accuracy of the model isn't high enough to consider who have high risk of mortality but can be used to basic diagnostics.
+
++-------------------------------+----------------------------------------+----------------------------+
+| Method                        | Adventage                              | Disadventage               |
++===============================+========================================+============================+
+| Holdout                       | Fast                                   | Unfortunate Split,         |
+|                               |                                        |                            |
+| (70% train 30% test)          |                                        | Overfitting,               |
+|                               |                                        |                            |
+| \                             |                                        | Complex Tree               |
+|                               |                                        |                            |
+|                               |                                        | \                          |
++-------------------------------+----------------------------------------+----------------------------+
+| Cross validation              | Solve Overfit Model and Selection Bias | Can't predict              |
++-------------------------------+----------------------------------------+----------------------------+
+| Holdout-cross-validation      | Solve Overfit Model and Selection Bias | Amount Train Data Decrease |
+|                               |                                        |                            |
+| (train data cross-validation) |                                        |                            |
+|                               |                                        |                            |
+| \                             |                                        |                            |
++-------------------------------+----------------------------------------+----------------------------+
+
+ 
+
+\
