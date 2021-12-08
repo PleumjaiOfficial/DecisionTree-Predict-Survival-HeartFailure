@@ -1,6 +1,8 @@
 # **CPE213 KMUTT Data model Project Predict survival of patients with heart failure**
 
-Ref:<https://bmcmedinformdecismak.biomedcentral.com/articles/10.1186/s12911-020-1023-5>
+Jatumongkon suksrinuan, Thornthan yasukum, Piyawat anugoolsawat, Natthaphon rojanathamcharoen, Phawit pukamkom
+
+*Faculty of Engineering, Computer Engineering - king mongkut's university of technology thonburi*
 
 ## Abstract
 
@@ -63,7 +65,7 @@ This dataset containing the medical records of 299 heart failure patients collec
 
 -   3.Data visualization
 
--   4.Model Explanation and Model Evaluation
+-   4.Model Explanation
 
     -   Decision tree Hold out method 70% train 30%
 
@@ -115,9 +117,9 @@ any(is.na(heart_failure_clinical_records_dataset))
 
 ```{r}
 heart_failure_clinical_records_dataset %>% rename(
-    cpk = creatinine_phosphokinase,
-    death = DEATH_EVENT
-  ) %>% 
+  cpk = creatinine_phosphokinase,
+  death = DEATH_EVENT
+) %>% 
   select(-time) -> all_data
 
 ```
@@ -216,15 +218,34 @@ summary(all_data$age)
 
 from histogram and summary statistic . age of patients are right skewed and their ages range between 40 and 95 years old
 
-2.  Scatterplot of serum creatinine versus ejection fraction
+2.  Scatter plot of blood data
+
+```{=html}
+<!-- -->
+```
+    2.1 Scatter plot of serum creatinine versus platelets
+
+```{r}
+ggplot(all_data) + 
+  geom_point(aes(x = cpk, y = platelets, color = death,shape=death))+
+  labs(title = "Scatter plot of platelets vs cpk enzyme")+
+  theme_minimal()
+  
+```
+
+From Scatter plot of serum platelets and enzyme CPK in blood, Graphs cannot be divided into two groups or arranged in a straight line. This plot shows a clear distinction between alive patients and dead patients, that we group by color and shape of dot
+
+2.2 Scatter plot of serum creatinine versus platelets
 
 ```{r}
 ggplot(all_data) + 
   geom_point(aes(x = cpk, y = ejection_fraction, color = death,shape=death))+
-  labs(title = "Scatterplot of serum creatinine")+
+  labs(title = "Scatter plot of ejection_fraction vs cpk enzyme")+
   theme_minimal()
-  
+
 ```
+
+From Scatter plot of serum ejection_fraction and enzyme CPK in blood that similar result as Scatter plot of serum platelets and enzyme CPK in blood, Graphs cannot be divided into two groups or arranged in a straight line.
 
 ------------------------------------------------------------------------
 
@@ -289,7 +310,7 @@ $Lift = P(Yes | Model)/P(Yes)$
 
 After we got model. we should to test model performance. in this project we use classification model so Lift is tool for test performance of classification model.
 
-"Lift use for compare normal random and random with model, what is the better choice. "
+"Lift use for compare normal random and random with model, what is the better choice"
 
 ### 1.Lift Calculation of Model (Decision tree Hold out method 70% train 30%)
 
@@ -360,7 +381,7 @@ tdl2
 
 #### 3.Cross Validation (LOOCV)
 
-LOOCV same technicial like K-FLOD. the different is number of split is the record of data and split with one set for test and other for train to build model
+LOOCV similar technical as K-FLOD but the different is number of split is the record of data and split with one set for test and other for train to build model
 
 ```{r}
 #Cross Validation LOOCV
@@ -407,6 +428,8 @@ tdl3 <- TopDecileLift(res3_pos, as.integer(data_test$death)-1)
 tdl3
 ```
 
+------------------------------------------------------------------------
+
 ## **Conclusion**
 
 The amount of information is sparse. In real situation the accuracy of the model isn't high enough to consider who have high risk of mortality but can be used to basic diagnostics.
@@ -418,7 +441,7 @@ The amount of information is sparse. In real situation the accuracy of the model
 |                               |                                        |                            |
 | (70% train 30% test)          |                                        | Overfitting,               |
 |                               |                                        |                            |
-| \                             |                                        | Complex Tree               |
+|                               |                                        | Complex Tree               |
 |                               |                                        |                            |
 |                               |                                        | \                          |
 +-------------------------------+----------------------------------------+----------------------------+
@@ -431,6 +454,22 @@ The amount of information is sparse. In real situation the accuracy of the model
 | \                             |                                        |                            |
 +-------------------------------+----------------------------------------+----------------------------+
 
- 
+**Supplementary information**
 
-\
+1.  Original feature renaming
+
+    We renamed "cpk" to " creatinine_phosphokinase".
+
+    We renamed "death" to " DEATH_EVENT" and change datatype to factor.  
+
+2.  List of statistical :
+
+    ![](https://topepo.github.io/caret/premade/cm.jpg)
+
+**Reference**
+
+Ref:[<https://bmcmedinformdecismak.biomedcentral.com/articles/10.1186/s12911-020-1023-5>](https://bmcmedinformdecismak.biomedcentral.com/articles/10.1186/s12911-020-1023-5){.uri}
+
+Ref:<https://topepo.github.io/caret/measuring-performance.html>
+
+ \
