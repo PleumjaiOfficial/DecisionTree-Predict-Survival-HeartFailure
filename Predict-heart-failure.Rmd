@@ -220,9 +220,8 @@ from histogram and summary statistic . age of patients are right skewed and thei
 
 2.  Scatter plot of blood data
 
-```{=html}
 <!-- -->
-```
+
     2.1 Scatter plot of serum creatinine versus platelets
 
 ```{r}
@@ -468,7 +467,7 @@ The amount of information is sparse. In real situation the accuracy of the model
 
 **Reference**
 
-Ref:[<https://bmcmedinformdecismak.biomedcentral.com/articles/10.1186/s12911-020-1023-5>](https://bmcmedinformdecismak.biomedcentral.com/articles/10.1186/s12911-020-1023-5){.uri}
+Ref:[\<https://bmcmedinformdecismak.biomedcentral.com/articles/10.1186/s12911-020-1023-5>](https://bmcmedinformdecismak.biomedcentral.com/articles/10.1186/s12911-020-1023-5){.uri}
 
 Ref:<https://topepo.github.io/caret/measuring-performance.html>
 
