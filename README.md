@@ -3,7 +3,7 @@
 
 *Faculty of Engineering, Computer Engineering - king mongkut's university of technology thonburi*
 
-> This project on website: https://cc0e87ed57f54307ab7c4a7760cb2a9f.app.rstudio.cloud/file_show?path=%2Fcloud%2Fproject%2FPredict-heart-failure.html 
+> This project on website: https://cc0e87ed57f54307ab7c4a7760cb2a9f.app.rstudio.cloud/file_show?path=%2Fcloud%2Fproject%2FPredict-heart-failure.html
 
 *Abstract*
 
