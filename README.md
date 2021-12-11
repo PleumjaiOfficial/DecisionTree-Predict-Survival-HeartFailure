@@ -16,4 +16,3 @@
 1. find the people with a high probability of death to provide immediate assistance.
 2. implementation tree model
 3. eveluate with K-FOLD and LOOCV
-
